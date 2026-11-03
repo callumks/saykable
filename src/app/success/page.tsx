@@ -34,7 +34,7 @@ export default async function SuccessPage({ searchParams }: Props) {
         {email ? `A receipt is on its way to ${email}. ` : "A receipt is on its way to you. "}
         {site.shipping} You&apos;ll get tracking as soon as it leaves {site.location}.
       </p>
-      <Link href="/" className="label inline-block mt-10 underline underline-offset-4">
+      <Link href="/shop" className="label inline-block mt-10 underline underline-offset-4">
         Back to the shop
       </Link>
     </section>

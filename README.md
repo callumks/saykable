@@ -12,7 +12,25 @@ npm install
 npm run dev
 ```
 
-With no `STRIPE_SECRET_KEY` the site shows the placeholder catalogue in `src/data/items.ts` and the buy button returns a "not configured" message.
+With no `STRIPE_SECRET_KEY` the site shows the catalogue imported from Depop (`src/data/depop.json`, photos in `public/items/depop/`) and the buy button returns a "not configured" message.
+
+## Pages
+
+- `/` — lead photo, latest available pieces, latest archive photos. No hero copy.
+- `/shop` — available pieces with category, size, brand and sort filters.
+- `/archive` — photo-only archive of sold pieces; details live on each item page. `/sold` redirects here.
+- `/studio` — product photography service. Set `studio.priceFrom` and `studio.turnaround` in `src/lib/site.ts`.
+- `/item/[slug]` — photos, price, buy button and facts, including the catalogue number (SK-001…).
+
+## Depop catalogue
+
+68 pieces from depop.com/sayba_853 (18 available, 50 sold), numbered SK-001 to SK-068 oldest to newest. Sold pieces always show in the archive, merged with anything that sells through Stripe. To make the available ones buyable, deploy, then run:
+
+```bash
+STRIPE_SECRET_KEY=sk_... NEXT_PUBLIC_SITE_URL=https://yourdomain npm run seed:stripe
+```
+
+Prices are the USD prices Depop displayed at import; adjust them in Stripe.
 
 ## Listing a piece
 
@@ -24,7 +42,7 @@ In Stripe → Product catalogue → Add product:
 | Description | Shown on the item page. |
 | Images | Up to 8. First one is the tile. Shoot on the same grey backdrop. |
 | Price | One-time, USD. |
-| Metadata | Optional keys: `brand`, `size`, `condition`, `era`, `measurements`, `slug`. |
+| Metadata | Optional keys: `no`, `brand`, `size`, `condition`, `category`, `era`, `measurements`, `slug`. |
 
 Archive the product in Stripe to take it down manually. The webhook archives it automatically when it sells.
 

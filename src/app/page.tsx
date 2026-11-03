@@ -1,44 +1,59 @@
-import { getListedItems } from "@/lib/catalog";
+import Image from "next/image";
+import Link from "next/link";
+import { getListedItems, getSoldItems } from "@/lib/catalog";
 import { ItemGrid } from "@/components/ItemGrid";
-import { site } from "@/lib/site";
+import { SectionHead } from "@/components/SectionHead";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const items = await getListedItems();
+  const [listed, sold] = await Promise.all([getListedItems(), getSoldItems()]);
+  const lead = listed[0] ?? sold[0];
+
   return (
     <>
-      <section className="pt-16 pb-12 sm:pt-24 sm:pb-16 border-b border-line">
-        <h1 className="wordmark text-[18vw] sm:text-[11rem] leading-none select-none">{site.name}</h1>
-        <div className="mt-8 grid gap-6 sm:grid-cols-[1fr_auto] sm:items-end">
-          <p className="text-lg sm:text-2xl max-w-xl leading-snug">
-            {site.tagline} Sourced in {site.location}. {site.shipping}
+      {lead?.images[0] ? (
+        <Link href={`/item/${lead.slug}`} className="group block mt-6 sm:mt-8">
+          <div className="relative aspect-[4/5] sm:aspect-[16/9] bg-tile overflow-hidden">
+            <Image
+              src={lead.images[0]}
+              alt={lead.name}
+              fill
+              priority
+              sizes="(min-width: 1280px) 1232px, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <p className="label text-muted mt-2 group-hover:text-foreground">
+            {lead.no} · {lead.name}
           </p>
-          {site.proof ? (
-            <dl className="label text-muted flex gap-6">
-              <div>
-                <dt className="sr-only">Sold</dt>
-                <dd><span className="text-foreground">{site.proof.sold}</span> sold</dd>
-              </div>
-              <div>
-                <dt className="sr-only">Reviews</dt>
-                <dd><span className="text-foreground">{site.proof.reviews}</span> five-star reviews</dd>
-              </div>
-              <div>
-                <dt className="sr-only">Followers</dt>
-                <dd><span className="text-foreground">{site.proof.followers}</span> followers</dd>
-              </div>
-            </dl>
-          ) : null}
-        </div>
+        </Link>
+      ) : null}
+
+      <section className="pt-16">
+        <SectionHead label="Available now" count={listed.length} href="/shop" linkLabel="Shop" />
+        <ItemGrid items={listed.slice(1, 9)} empty="Nothing listed right now. Check back soon." />
       </section>
 
-      <section className="pt-10">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="label">Available now</h2>
-          <p className="label text-muted">{items.length} pieces</p>
-        </div>
-        <ItemGrid items={items} empty="Nothing listed right now. Check back soon." />
+      <section className="pt-20">
+        <SectionHead label="Archive" count={sold.length} href="/archive" linkLabel="All photos" />
+        <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {sold.slice(0, 12).map((i) => (
+            <li key={i.id}>
+              <Link href={`/item/${i.slug}`} className="block relative aspect-[3/4] bg-tile overflow-hidden" aria-label={i.name}>
+                {i.images[0] ? (
+                  <Image src={i.images[0]} alt="" fill sizes="(min-width: 640px) 16vw, 33vw" className="object-cover" />
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-20 py-6 border-y border-line flex flex-wrap items-center justify-between gap-4">
+        <p className="label">Studio</p>
+        <p className="text-sm text-muted flex-1 min-w-60">Every photo on this site is shot in-house. We shoot for other sellers and brands too.</p>
+        <Link href="/studio" className="label hover:underline underline-offset-4">Studio →</Link>
       </section>
     </>
   );

@@ -14,4 +14,11 @@ export const site = {
     email: "saykable@gmail.com",
     instagram: "saykable",
   },
+  depop: "https://www.depop.com/sayba_853/",
+  studio: {
+    /** Starting price per piece in USD, e.g. 25. null shows "Pricing on request". */
+    priceFrom: null as number | null,
+    /** e.g. "3–5 working days". null hides the line. */
+    turnaround: null as string | null,
+  },
 } as const;

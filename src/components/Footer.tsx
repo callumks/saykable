@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site } from "@/lib/site";
 
 export function Footer() {
@@ -17,6 +18,9 @@ export function Footer() {
             <li>Secure checkout by Stripe.</li>
             <li>Tracked shipping, worldwide.</li>
             <li>Questions or offers: DM or email.</li>
+            <li>
+              <Link className="hover:underline underline-offset-4" href="/studio">Product photography: Studio</Link>
+            </li>
           </ul>
         </div>
         <div>
@@ -35,6 +39,11 @@ export function Footer() {
                 rel="noreferrer"
               >
                 @{site.contact.instagram}
+              </a>
+            </li>
+            <li>
+              <a className="hover:underline underline-offset-4" href={site.depop} target="_blank" rel="noreferrer">
+                Depop
               </a>
             </li>
           </ul>

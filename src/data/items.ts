@@ -1,99 +1,13 @@
 import type { Item } from "@/lib/catalog";
+import depop from "./depop.json";
 
 /**
- * Placeholder catalogue used when STRIPE_SECRET_KEY is unset.
- * Images were cropped from the Depop shop screenshot; names and details are guesses.
- * Once Stripe is configured this file is ignored and products come from the dashboard.
+ * The catalogue carried over from the Depop shop (depop.com/sayba_853), imported
+ * November 2026. Photos are the original listing photos, saved under
+ * public/items/depop/. Catalogue numbers run oldest to newest by upload order.
+ *
+ * Available pieces are shown from here only while Stripe is not configured; once
+ * it is, list them with `npm run seed:stripe`. Sold pieces always show in the
+ * archive, alongside anything that sells through Stripe.
  */
-export const localItems: Item[] = [
-  {
-    id: "local_1",
-    slug: "navy-patch-overshirt",
-    name: "Navy patch overshirt",
-    description: "Heavyweight navy overshirt with woven chest patch and snap front.",
-    price: 40000,
-    currency: "usd",
-    images: ["/items/item-1.jpg"],
-    status: "available",
-    size: "L",
-    condition: "Excellent",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-  {
-    id: "local_2",
-    slug: "white-technical-vest",
-    name: "White technical vest",
-    description: "Lightweight white zip vest with welded pocket panels.",
-    price: 25000,
-    currency: "usd",
-    images: ["/items/item-2.jpg"],
-    status: "available",
-    size: "M",
-    condition: "Very good",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-  {
-    id: "local_3",
-    slug: "ice-blue-technical-backpack",
-    name: "Ice blue technical backpack",
-    description: "Ripstop daypack with compression straps and shield logo.",
-    price: 30000,
-    currency: "usd",
-    images: ["/items/item-3.jpg"],
-    status: "available",
-    size: "One size",
-    condition: "Good, light wear",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-  {
-    id: "local_4",
-    slug: "grey-panelled-fleece-jacket",
-    name: "Grey panelled fleece jacket",
-    description: "Two-tone grey fleece with contrast stitched panelling and high collar.",
-    price: 32500,
-    currency: "usd",
-    images: ["/items/item-4.jpg"],
-    status: "available",
-    size: "M",
-    condition: "Excellent",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-  {
-    id: "local_5",
-    slug: "black-quilted-puffer",
-    name: "Black quilted puffer",
-    description: "Hooded black puffer, boxy cut, full zip.",
-    price: 10000,
-    currency: "usd",
-    images: ["/items/item-5.jpg"],
-    status: "reserved",
-    size: "L",
-    condition: "Very good",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-  {
-    id: "local_6",
-    slug: "white-chevron-down-jacket",
-    name: "White chevron down jacket",
-    description: "Chevron-quilted white down jacket with stand collar.",
-    price: 5000,
-    currency: "usd",
-    images: ["/items/item-6.jpg"],
-    status: "sold",
-    size: "S",
-    condition: "Good",
-    brand: "",
-    era: "",
-    measurements: "",
-  },
-];
+export const localItems = depop as Item[];

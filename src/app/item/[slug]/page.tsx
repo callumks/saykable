@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatPrice, getItemBySlug } from "@/lib/catalog";
+import { getItemBySlug } from "@/lib/catalog";
+import { formatPrice } from "@/lib/format";
 import { BuyButton } from "@/components/BuyButton";
 import { site } from "@/lib/site";
 
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = await getItemBySlug(slug);
   if (!item) return { title: "Not found" };
   return {
-    title: item.name,
+    title: `${item.no} ${item.name}`.trim(),
     description: item.description || `${item.name} — ${formatPrice(item.price, item.currency)}`,
     openGraph: { images: item.images.slice(0, 1) },
   };
@@ -25,12 +26,15 @@ export default async function ItemPage({ params }: Props) {
   const { slug } = await params;
   const item = await getItemBySlug(slug);
   if (!item) notFound();
+  const sold = item.status === "sold";
 
   const facts: [string, string][] = [
+    ["No.", item.no],
     ["Brand", item.brand],
     ["Size", item.size],
     ["Condition", item.condition],
     ["Era", item.era],
+    ["Category", item.category],
     ["Measurements", item.measurements],
   ];
 
@@ -53,16 +57,21 @@ export default async function ItemPage({ params }: Props) {
       </div>
 
       <div className="lg:sticky lg:top-20 self-start">
-        <Link href="/" className="label text-muted hover:underline underline-offset-4">← Shop</Link>
-        <h1 className="text-3xl mt-4 leading-tight">{item.name}</h1>
-        <p className={`text-xl mt-2 tabular-nums ${item.status === "sold" ? "line-through text-muted" : ""}`}>
+        <Link href={sold ? "/archive" : "/shop"} className="label text-muted hover:underline underline-offset-4">
+          ← {sold ? "Archive" : "Shop"}
+        </Link>
+        <p className="label text-muted mt-6">{item.no}</p>
+        <h1 className="text-3xl mt-1 leading-tight">{item.name}</h1>
+        <p className={`text-xl mt-2 tabular-nums ${sold ? "line-through text-muted" : ""}`}>
           {formatPrice(item.price, item.currency)}
         </p>
 
         <div className="mt-8">
           <BuyButton id={item.id} status={item.status} label="Buy now" />
           <p className="label text-muted mt-3">
-            One of one · shipping calculated at checkout · {site.shipping.toLowerCase()}
+            {sold
+              ? "Sold · ask about similar pieces by DM or email"
+              : `One of one · shipping calculated at checkout · ${site.shipping.toLowerCase()}`}
           </p>
         </div>
 

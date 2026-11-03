@@ -5,6 +5,8 @@ export type ItemStatus = "available" | "reserved" | "sold";
 
 export type Item = {
   id: string;
+  /** Catalogue number, e.g. SK-068. */
+  no: string;
   slug: string;
   name: string;
   description: string;
@@ -16,6 +18,7 @@ export type Item = {
   size: string;
   condition: string;
   brand: string;
+  category: string;
   era: string;
   measurements: string;
 };
@@ -46,20 +49,23 @@ export function statusOf(product: Stripe.Product, now = Date.now()): ItemStatus 
 function fromStripe(product: Stripe.Product): Item | null {
   const price = product.default_price;
   if (!price || typeof price === "string" || price.unit_amount == null) return null;
+  const m = product.metadata;
   return {
     id: product.id,
-    slug: product.metadata.slug || slugFor(product),
+    no: m.no ?? "",
+    slug: m.slug || slugFor(product),
     name: product.name,
     description: product.description ?? "",
     price: price.unit_amount,
     currency: price.currency,
     images: product.images,
     status: statusOf(product),
-    size: product.metadata.size ?? "",
-    condition: product.metadata.condition ?? "",
-    brand: product.metadata.brand ?? "",
-    era: product.metadata.era ?? "",
-    measurements: product.metadata.measurements ?? "",
+    size: m.size ?? "",
+    condition: m.condition ?? "",
+    brand: m.brand ?? "",
+    category: m.category ?? "",
+    era: m.era ?? "",
+    measurements: m.measurements ?? "",
   };
 }
 
@@ -81,20 +87,30 @@ async function localCatalog(): Promise<Item[]> {
   return localItems;
 }
 
+/** Newest first: by catalogue number, then as listed. */
+function byNewest(items: Item[]): Item[] {
+  return [...items].sort((a, b) => (b.no || "").localeCompare(a.no || ""));
+}
+
 /** Everything currently listed: available and reserved pieces, newest first. */
 export async function getListedItems(): Promise<Item[]> {
   if (!stripeConfigured()) {
-    return (await localCatalog()).filter((i) => i.status !== "sold");
+    return byNewest((await localCatalog()).filter((i) => i.status !== "sold"));
   }
-  return listStripe(true);
+  return byNewest(await listStripe(true));
 }
 
-/** Sold archive. Products are archived (active=false) by the webhook when they sell. */
+/**
+ * Sold archive: the Depop history plus anything archived by the webhook after
+ * selling through Stripe. A Stripe piece carrying the same catalogue number
+ * replaces its Depop record.
+ */
 export async function getSoldItems(): Promise<Item[]> {
-  if (!stripeConfigured()) {
-    return (await localCatalog()).filter((i) => i.status === "sold");
-  }
-  return (await listStripe(false)).filter((i) => i.status === "sold");
+  const history = (await localCatalog()).filter((i) => i.status === "sold");
+  if (!stripeConfigured()) return byNewest(history);
+  const sold = (await listStripe(false)).filter((i) => i.status === "sold");
+  const taken = new Set(sold.map((i) => i.no).filter(Boolean));
+  return byNewest([...sold, ...history.filter((i) => !taken.has(i.no))]);
 }
 
 export async function getItemBySlug(slug: string): Promise<Item | null> {
@@ -102,10 +118,4 @@ export async function getItemBySlug(slug: string): Promise<Item | null> {
   return all.find((i) => i.slug === slug) ?? null;
 }
 
-export function formatPrice(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    maximumFractionDigits: amount % 100 === 0 ? 0 : 2,
-  }).format(amount / 100);
-}
+export { formatPrice } from "./format";

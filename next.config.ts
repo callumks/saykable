@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     // Product photos uploaded through the Stripe dashboard are served from files.stripe.com
     remotePatterns: [{ protocol: "https", hostname: "files.stripe.com" }],
   },
+  async redirects() {
+    return [{ source: "/sold", destination: "/archive", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {
