@@ -1,5 +1,5 @@
 export const site = {
-  name: "SAYBA",
+  name: "saykable",
   tagline: "Archive & technical clothing.",
   location: "New York City",
   shipping: "Ships worldwide, same or next day.",

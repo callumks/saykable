@@ -1,4 +1,4 @@
-# SAYBA
+# saykable
 
 Storefront for an archive and technical clothing shop, previously run on Depop. Every piece is one of one.
 
