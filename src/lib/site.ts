@@ -11,7 +11,7 @@ export const site = {
     followers: "1.08K",
   } as { sold: number; reviews: number; followers: string } | null,
   contact: {
-    email: "hello@example.com",
-    instagram: "sayba",
+    email: "saykable@gmail.com",
+    instagram: "saykable",
   },
 } as const;
