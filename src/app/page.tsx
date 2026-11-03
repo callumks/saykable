@@ -6,33 +6,48 @@ import { SectionHead } from "@/components/SectionHead";
 
 export const revalidate = 60;
 
+/** Worn shots, shot in-house against the white wall. The first one is the only one shown on phones. */
+const hero = [
+  { src: "/hero/sk-027-worn.jpg", no: "SK-027", alt: "Grey Arc’teryx shell, hood up, worn with a crossbody bag" },
+  { src: "/hero/sk-026-worn.jpg", no: "SK-026", alt: "Two-tone green Arc’teryx shell, hood up" },
+];
+
 export default async function HomePage() {
   const [listed, sold] = await Promise.all([getListedItems(), getSoldItems()]);
-  const lead = listed[0] ?? sold[0];
+  const byNo = new Map([...listed, ...sold].map((i) => [i.no, i]));
 
   return (
     <>
-      {lead?.images[0] ? (
-        <Link href={`/item/${lead.slug}`} className="group block mt-6 sm:mt-8">
-          <div className="relative aspect-[4/5] sm:aspect-[16/9] bg-tile overflow-hidden">
-            <Image
-              src={lead.images[0]}
-              alt={lead.name}
-              fill
-              priority
-              sizes="(min-width: 1280px) 1232px, 100vw"
-              className="object-cover"
-            />
-          </div>
-          <p className="label text-muted mt-2 group-hover:text-foreground">
-            {lead.no} · {lead.name}
-          </p>
-        </Link>
-      ) : null}
+      <section className="mt-6 sm:mt-8" aria-label="Lookbook">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {hero.map((h, n) => {
+            const item = byNo.get(h.no);
+            return (
+              <li key={h.src} className={n > 0 ? "hidden sm:block" : undefined}>
+                <Link href={item ? `/item/${item.slug}` : "/archive"} className="group block">
+                  <div className="relative aspect-square bg-tile overflow-hidden">
+                    <Image
+                      src={h.src}
+                      alt={h.alt}
+                      fill
+                      priority
+                      sizes="(min-width: 1280px) 612px, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <p className="label text-muted mt-2 group-hover:text-foreground truncate">
+                    {[h.no, item?.name, item?.status === "sold" ? "Sold" : null].filter(Boolean).join(" · ")}
+                  </p>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
       <section className="pt-16">
         <SectionHead label="Available now" count={listed.length} href="/shop" linkLabel="Shop" />
-        <ItemGrid items={listed.slice(1, 9)} empty="Nothing listed right now. Check back soon." />
+        <ItemGrid items={listed.slice(0, 8)} empty="Nothing listed right now. Check back soon." />
       </section>
 
       <section className="pt-20">

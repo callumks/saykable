@@ -1,25 +1,43 @@
 "use client";
 
-export function Chip({
-  on,
-  onClick,
-  children,
+/**
+ * One line of category tabs with counts. Scrolls sideways on phones instead of
+ * wrapping, so the grid starts near the top of the screen.
+ */
+export function Tabs({
+  label,
+  value,
+  onChange,
+  options,
 }: {
-  on: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; count: number }[];
 }) {
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={onClick}
-      className={`label h-11 px-3.5 border whitespace-nowrap transition-colors ${
-        on ? "bg-foreground text-background border-foreground" : "bg-background border-line hover:border-foreground"
-      }`}
+    <div
+      role="group"
+      aria-label={label}
+      className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {children}
-    </button>
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChange(o.value)}
+            className={`label h-11 shrink-0 whitespace-nowrap underline-offset-[6px] decoration-1 ${
+              on ? "text-foreground underline" : "text-muted hover:text-foreground"
+            }`}
+          >
+            {o.value} <span className="tabular-nums text-muted">{o.count}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -35,12 +53,12 @@ export function Select({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="relative inline-flex">
+    <label className="relative flex min-w-0">
       <span className="sr-only">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="label h-11 pl-3 pr-8 border border-line bg-background appearance-none cursor-pointer hover:border-foreground"
+        className="label w-full h-11 pl-3 pr-8 border border-line bg-background appearance-none cursor-pointer truncate hover:border-foreground"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -62,4 +80,17 @@ export function Select({
       </svg>
     </label>
   );
+}
+
+/** Category options with counts, in order of first appearance, "All" first. */
+export function countBy<T>(items: T[], key: (i: T) => string): { value: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const i of items) {
+    const k = key(i);
+    if (k) counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  return [
+    { value: "All", count: items.length },
+    ...[...counts].sort((a, b) => b[1] - a[1]).map(([value, count]) => ({ value, count })),
+  ];
 }
