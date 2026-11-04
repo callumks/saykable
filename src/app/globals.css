@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --muted: #6b6b6b;
-  --line: #e4e4e4;
-  --tile: #ececec; /* matches the photo backdrop */
+  --background: #f3f3f1;
+  --foreground: #101111;
+  --muted: #696b6a;
+  --line: #dcdddb;
+  --tile: #e7e8e5; /* close to the photo backdrop */
+  --ease: cubic-bezier(.2, .8, .2, 1);
   --accent: #a7d8d1; /* mint from the logo */
 }
 
@@ -16,6 +17,7 @@
   --color-line: var(--line);
   --color-tile: var(--tile);
   --color-accent: var(--accent);
+  --radius-photo: 14px;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -42,4 +44,21 @@ body {
   letter-spacing: -0.06em;
   font-weight: 700;
   line-height: 0.9;
+}
+
+/* Photos arrive from a soft blur; headline blocks rise in once. Nothing loops. */
+@keyframes blur-in {
+  from { filter: blur(8px); opacity: 0; }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+}
+.blur-in {
+  animation: blur-in .9s var(--ease) both;
+}
+.rise-in {
+  animation: rise-in .9s var(--ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blur-in, .rise-in { animation: none; }
 }

@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getListedItems, getSoldItems } from "@/lib/catalog";
-import { ItemGrid } from "@/components/ItemGrid";
-import { SectionHead } from "@/components/SectionHead";
+import { Hero, type HeroShot } from "@/components/home/Hero";
+import { Shop } from "@/components/home/Shop";
+import { site } from "@/lib/site";
 
 export const revalidate = 60;
 
-/** Worn shots, shot in-house against the white wall. The first one is the only one shown on phones. */
-const hero = [
+/** Worn shots, shot in-house against the white wall. Phones show the first one only. */
+const worn = [
   { src: "/hero/sk-027-worn.jpg", no: "SK-027", alt: "Grey Arc’teryx shell, hood up, worn with a crossbody bag" },
   { src: "/hero/sk-026-worn.jpg", no: "SK-026", alt: "Two-tone green Arc’teryx shell, hood up" },
 ];
@@ -15,60 +16,49 @@ const hero = [
 export default async function HomePage() {
   const [listed, sold] = await Promise.all([getListedItems(), getSoldItems()]);
   const byNo = new Map([...listed, ...sold].map((i) => [i.no, i]));
+  const shots: HeroShot[] = worn.map((w) => ({ src: w.src, alt: w.alt, item: byNo.get(w.no) ?? null }));
 
   return (
     <>
-      <section className="mt-6 sm:mt-8" aria-label="Lookbook">
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {hero.map((h, n) => {
-            const item = byNo.get(h.no);
-            return (
-              <li key={h.src} className={n > 0 ? "hidden sm:block" : undefined}>
-                <Link href={item ? `/item/${item.slug}` : "/archive"} className="group block">
-                  <div className="relative aspect-square bg-tile overflow-hidden">
+      <section className="pt-2 sm:pt-4" aria-label="Lookbook">
+        <Hero shots={shots} />
+        <div className="h-16 sm:h-[72px] flex items-center justify-between gap-4 font-mono text-xs text-muted">
+          <span>{site.tagline.replace(/\.$/, "")}</span>
+          <a href="#shop" className="text-foreground hover:underline underline-offset-4">
+            Shop {listed.length} pieces ↓
+          </a>
+        </div>
+      </section>
+
+      <section id="shop" className="scroll-mt-14 pb-24 sm:pb-36" aria-label="Shop">
+        <Shop items={listed} soldCount={sold.length} />
+      </section>
+
+      <section id="archive" className="scroll-mt-14 border-t border-line pt-7 pb-24 sm:pb-36" aria-label="Archive">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-7">
+          <h2 className="text-[clamp(28px,3vw,44px)] font-medium leading-none tracking-[-0.04em]">Archive</h2>
+          <span className="font-mono text-xs text-muted">{sold.length} pieces, all sold</span>
+        </div>
+        <ul className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-x-2 gap-y-4 sm:gap-y-5">
+          {sold.map((i) => (
+            <li key={i.id} className="min-w-0">
+              <Link href={`/item/${i.slug}`} className="group flex flex-col gap-1.5" aria-label={`${i.no}, ${i.name}, sold`}>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-tile">
+                  {i.images[0] ? (
                     <Image
-                      src={h.src}
-                      alt={h.alt}
+                      src={i.images[0]}
+                      alt=""
                       fill
-                      priority
-                      sizes="(min-width: 1280px) 612px, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
+                      sizes="(min-width: 1024px) 11vw, (min-width: 640px) 16vw, 25vw"
+                      className="object-cover grayscale opacity-70 transition-[filter,opacity,transform] duration-700 ease-[var(--ease)] group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.04] group-focus-visible:grayscale-0 group-focus-visible:opacity-100 motion-reduce:transition-none"
                     />
-                  </div>
-                  <p className="label text-muted mt-2 group-hover:text-foreground truncate">
-                    {[h.no, item?.name, item?.status === "sold" ? "Sold" : null].filter(Boolean).join(" · ")}
-                  </p>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      <section className="pt-16">
-        <SectionHead label="Available now" count={listed.length} href="/shop" linkLabel="Shop" />
-        <ItemGrid items={listed.slice(0, 8)} empty="Nothing listed right now. Check back soon." />
-      </section>
-
-      <section className="pt-20">
-        <SectionHead label="Archive" count={sold.length} href="/archive" linkLabel="All photos" />
-        <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {sold.slice(0, 12).map((i) => (
-            <li key={i.id}>
-              <Link href={`/item/${i.slug}`} className="block relative aspect-[3/4] bg-tile overflow-hidden" aria-label={i.name}>
-                {i.images[0] ? (
-                  <Image src={i.images[0]} alt="" fill sizes="(min-width: 640px) 16vw, 33vw" className="object-cover" />
-                ) : null}
+                  ) : null}
+                </div>
+                <span className="font-mono text-[10px] sm:text-[11px] text-muted group-hover:text-foreground truncate">{i.no}</span>
               </Link>
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="mt-20 py-6 border-y border-line flex flex-wrap items-center justify-between gap-4">
-        <p className="label">Studio</p>
-        <p className="text-sm text-muted flex-1 min-w-60">Every photo on this site is shot in-house. We shoot for other sellers and brands too.</p>
-        <Link href="/studio" className="label hover:underline underline-offset-4">Studio →</Link>
       </section>
     </>
   );
