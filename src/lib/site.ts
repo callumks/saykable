@@ -1,7 +1,7 @@
 export const site = {
   name: "saykable",
   tagline: "Archive & technical clothing.",
-  location: "New York City",
+  location: "London",
   shipping: "Ships worldwide, same or next day.",
   currency: "usd",
   // Track record carried over from the Depop shop. Set to null to hide the strip.
