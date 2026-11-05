@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
 
@@ -11,7 +12,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-20 bg-background/85 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-        <Link href="/" className="text-lg font-semibold tracking-[-0.04em]" aria-label={`${site.name} home`}>
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-[-0.04em]" aria-label={`${site.name} home`}>
+          <Image src="/logo.png" alt="" width={26} height={26} priority className="size-[26px]" />
           {site.name}
         </Link>
         <nav className="flex items-center gap-4 sm:gap-5 font-mono text-xs text-muted">
